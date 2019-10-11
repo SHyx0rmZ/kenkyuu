@@ -10,8 +10,7 @@ import (
 type Buffer struct {
 	Handle vulkan.Buffer
 	Memory Memory
-
-	device vulkan.Device
+	Device vulkan.Device
 }
 
 var allocator MemoryAllocator
@@ -26,7 +25,7 @@ func NewBuffer(device vulkan.Device, allocator MemoryAllocator, usage vulkan.Buf
 	pointer := rv.Pointer()
 
 	b := &Buffer{
-		device: device,
+		Device: device,
 	}
 	cleanup := b.Close
 	defer func() {
@@ -88,10 +87,10 @@ func (b *Buffer) Close() {
 	}
 
 	if b.Handle != 0 {
-		vulkan.DestroyBuffer(b.device, b.Handle, nil)
+		vulkan.DestroyBuffer(b.Device, b.Handle, nil)
 	}
 
 	if b.Memory.Memory != 0 {
-		vulkan.FreeMemory(b.device, b.Memory.Memory, nil)
+		vulkan.FreeMemory(b.Device, b.Memory.Memory, nil)
 	}
 }

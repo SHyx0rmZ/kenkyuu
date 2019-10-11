@@ -23,7 +23,7 @@ type Image struct {
 
 	vulkan.Extent2D
 
-	device vulkan.Device
+	Device vulkan.Device
 }
 
 type __image struct {
@@ -90,7 +90,7 @@ func LoadImage(device vulkan.Device, allocator MemoryAllocator, j image.Image, t
 			Width:  uint32(j.Bounds().Dx()),
 			Height: uint32(j.Bounds().Dy()),
 		},
-		device: device,
+		Device: device,
 	}
 	cleanup := i.Close
 	defer func() {
@@ -285,22 +285,22 @@ func (i *Image) Close() {
 	}
 
 	if i.View != 0 {
-		vulkan.DestroyImageView(i.device, i.View, nil)
+		vulkan.DestroyImageView(i.Device, i.View, nil)
 	}
 
 	if i.Handle != 0 {
-		vulkan.DestroyImage(i.device, i.Handle, nil)
+		vulkan.DestroyImage(i.Device, i.Handle, nil)
 	}
 
 	if i.Memory != 0 {
-		vulkan.FreeMemory(i.device, i.Memory, nil)
+		vulkan.FreeMemory(i.Device, i.Memory, nil)
 	}
 
 	if i.Buffer != 0 {
-		vulkan.DestroyBuffer(i.device, i.Buffer, nil)
+		vulkan.DestroyBuffer(i.Device, i.Buffer, nil)
 	}
 
 	if i.BufferMemory != 0 {
-		vulkan.FreeMemory(i.device, i.BufferMemory, nil)
+		vulkan.FreeMemory(i.Device, i.BufferMemory, nil)
 	}
 }
