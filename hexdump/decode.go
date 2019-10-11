@@ -1,8 +1,8 @@
 package hexdump
 
 import (
-"encoding/hex"
-"io"
+	"encoding/hex"
+	"io"
 )
 
 const bytesPerLine = 16
