@@ -16,13 +16,20 @@ type Buffer struct {
 var allocator MemoryAllocator
 
 func NewBuffer(device vulkan.Device, allocator MemoryAllocator, usage vulkan.BufferUsageFlags, data interface{}) (*Buffer, error) {
-	rv := reflect.ValueOf(data)
-	if rv.Kind() != reflect.Slice {
+	rv := reflect.Indirect(reflect.ValueOf(data))
+	var size uintptr
+	var pointer uintptr
+
+	switch rv.Kind() {
+	case reflect.Slice:
+		size = rv.Type().Elem().Size() * uintptr(rv.Len())
+		pointer = rv.Pointer()
+	case reflect.Struct:
+		size = rv.Type().Size()
+		pointer = rv.UnsafeAddr()
+	default:
 		return nil, fmt.Errorf("expected slice")
 	}
-
-	size := rv.Type().Elem().Size() * uintptr(rv.Len())
-	pointer := rv.Pointer()
 
 	b := &Buffer{
 		Device: device,
