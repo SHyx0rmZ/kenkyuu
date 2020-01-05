@@ -292,7 +292,7 @@ func (i *Image) Close() {
 		vulkan.DestroyImage(i.Device, i.Handle, nil)
 	}
 
-	if i.Memory != 0 {
+	if i.Memory != 0 && i.Memory != i.BufferMemory {
 		vulkan.FreeMemory(i.Device, i.Memory, nil)
 	}
 
