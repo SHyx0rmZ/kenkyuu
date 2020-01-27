@@ -5,6 +5,10 @@ import (
 	"io"
 )
 
+type nopCloser struct{}
+
+func (nopCloser) Close() error { return nil }
+
 type multiCloser struct {
 	closers []io.Closer
 }
@@ -22,6 +26,8 @@ func (mc multiCloser) Close() error {
 		if e != nil {
 			me.Errors = append(me.Errors, e)
 		}
+		mc.closers[0] = nopCloser{}
+		mc.closers = mc.closers[1:]
 	}
 	if len(me.Errors) == 0 {
 		return nil
