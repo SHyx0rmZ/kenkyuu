@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"code.witches.io/go/stellwerk/cmd/stellwerk-vulkan/vulkan"
+	"code.witches.io/go/vulkan"
 )
 
 type Shader struct {

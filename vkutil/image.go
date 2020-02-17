@@ -2,7 +2,7 @@ package vkutil
 
 import (
 	sdl "code.witches.io/go/sdl2"
-	"code.witches.io/go/stellwerk/cmd/stellwerk-vulkan/vulkan"
+	"code.witches.io/go/vulkan"
 	"fmt"
 	"image"
 	"image/color"

@@ -1,7 +1,7 @@
 package vkutil
 
 import (
-	"code.witches.io/go/stellwerk/cmd/stellwerk-vulkan/vulkan"
+	"code.witches.io/go/vulkan"
 )
 
 type MemoryAllocator interface {
