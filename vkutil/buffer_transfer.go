@@ -138,16 +138,19 @@ func NewTransferBuffer(device vulkan.Device, allocatorFrom, allocatorTo MemoryAl
 
 type Transferer interface {
 	Transfer(queue vulkan.Queue, semaphore vulkan.Semaphore, stageMask vulkan.PipelineStageFlags2, fence vulkan.Fence) error
+	TransferCommandBuffers(count uint32) ([]vulkan.CommandBuffer, error)
+	TransferCommands(commandBuffer vulkan.CommandBuffer) error
+	TransferSubmit(queue vulkan.Queue, commandBuffers []vulkan.CommandBuffer, semaphore vulkan.Semaphore, stageMask vulkan.PipelineStageFlags2, fence vulkan.Fence) error
 }
 
-func (b *TransferBuffer) Transfer(queue vulkan.Queue, semaphore vulkan.Semaphore, stageMask vulkan.PipelineStageFlags2, fence vulkan.Fence) error {
+func (b *TransferBuffer) TransferCommandBuffers(count uint32) ([]vulkan.CommandBuffer, error) {
 	commandPool, err := vulkan.CreateCommandPool(b.Device, vulkan.CommandPoolCreateInfo{
 		Type:             vulkan.StructureTypeCommandPoolCreateInfo,
 		Flags:            vulkan.CommandPoolCreateTransient,
 		QueueFamilyIndex: b.fromFamily,
 	}, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	b.commandPool = commandPool
 
@@ -155,14 +158,18 @@ func (b *TransferBuffer) Transfer(queue vulkan.Queue, semaphore vulkan.Semaphore
 		Type:               vulkan.StructureTypeCommandBufferAllocateInfo,
 		CommandPool:        commandPool,
 		Level:              vulkan.CommandBufferLevelPrimary,
-		CommandBufferCount: 1,
+		CommandBufferCount: count,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	b.commandBuffers = commandBuffers
 
-	err = vulkan.BeginCommandBuffer(commandBuffers[0], vulkan.CommandBufferBeginInfo{
+	return commandBuffers, nil
+}
+
+func (b *TransferBuffer) TransferCommands(commandBuffer vulkan.CommandBuffer) error {
+	err := vulkan.BeginCommandBuffer(commandBuffer, vulkan.CommandBufferBeginInfo{
 		Type:            vulkan.StructureTypeCommandBufferBeginInfo,
 		Flags:           vulkan.CommandBufferUsageOneTimeSubmitBit,
 		InheritanceInfo: nil,
@@ -171,7 +178,7 @@ func (b *TransferBuffer) Transfer(queue vulkan.Queue, semaphore vulkan.Semaphore
 		return err
 	}
 
-	vulkan.CmdCopyBuffer2(commandBuffers[0], vulkan.CopyBufferInfo2{
+	vulkan.CmdCopyBuffer2(commandBuffer, vulkan.CopyBufferInfo2{
 		Type:      vulkan.StructureTypeCopyBufferInfo2,
 		SrcBuffer: b.HandleHost,
 		DstBuffer: b.HandleDevice,
@@ -185,19 +192,24 @@ func (b *TransferBuffer) Transfer(queue vulkan.Queue, semaphore vulkan.Semaphore
 		},
 	})
 
-	err = vulkan.EndCommandBuffer(commandBuffers[0])
+	err = vulkan.EndCommandBuffer(commandBuffer)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (b *TransferBuffer) TransferSubmit(queue vulkan.Queue, commandBuffers []vulkan.CommandBuffer, semaphore vulkan.Semaphore, stageMask vulkan.PipelineStageFlags2, fence vulkan.Fence) error {
 	info := vulkan.SubmitInfo2{
 		Type: vulkan.StructureTypeSubmitInfo2,
-		CommandBufferInfos: []vulkan.CommandBufferSubmitInfo{
-			{
-				Type:          vulkan.StructureTypeCommandBufferSubmitInfo,
-				CommandBuffer: commandBuffers[0],
-			},
-		},
+	}
+
+	for _, commandBuffer := range commandBuffers {
+		info.CommandBufferInfos = append(info.CommandBufferInfos, vulkan.CommandBufferSubmitInfo{
+			Type:          vulkan.StructureTypeCommandBufferSubmitInfo,
+			CommandBuffer: commandBuffer,
+		})
 	}
 
 	if semaphore != vulkan.NullHandle {
@@ -218,6 +230,25 @@ func (b *TransferBuffer) Transfer(queue vulkan.Queue, semaphore vulkan.Semaphore
 	b.free = func() {
 		b.free = nil
 		free()
+	}
+
+	return nil
+}
+
+func (b *TransferBuffer) Transfer(queue vulkan.Queue, semaphore vulkan.Semaphore, stageMask vulkan.PipelineStageFlags2, fence vulkan.Fence) error {
+	commandBuffers, err := b.TransferCommandBuffers(1)
+	if err != nil {
+		return err
+	}
+
+	err = b.TransferCommands(commandBuffers[0])
+	if err != nil {
+		return err
+	}
+
+	err = b.TransferSubmit(queue, commandBuffers, semaphore, stageMask, fence)
+	if err != nil {
+		return err
 	}
 
 	return nil
