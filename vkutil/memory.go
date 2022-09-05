@@ -1,6 +1,8 @@
 package vkutil
 
 import (
+	"unsafe"
+
 	"code.witches.io/go/vulkan"
 )
 
@@ -48,4 +50,16 @@ func (m *Memory) Unmap() error {
 	}
 	vulkan.UnmapMemory(m.Device, m.Memory)
 	return err
+}
+
+func (m *Memory) Mapped(offset, size vulkan.DeviceSize, flags vulkan.MemoryMapFlags, fn func(unsafe.Pointer)) error {
+	addr, err := m.Map(offset, size, flags)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err = m.Unmap()
+	}()
+	fn(unsafe.Pointer(addr))
+	return nil
 }
