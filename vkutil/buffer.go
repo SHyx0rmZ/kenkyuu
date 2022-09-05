@@ -1,10 +1,11 @@
 package vkutil
 
 import (
-	"code.witches.io/go/vulkan"
 	"fmt"
 	"reflect"
 	"unsafe"
+
+	"code.witches.io/go/vulkan"
 )
 
 type Buffer struct {
@@ -86,6 +87,10 @@ func NewBuffer(device vulkan.Device, allocator MemoryAllocator, usage vulkan.Buf
 	cleanup = func() {}
 
 	return b, nil
+}
+
+func (b *Buffer) Buffer() vulkan.Buffer {
+	return b.Handle
 }
 
 func (b *Buffer) Close() {
