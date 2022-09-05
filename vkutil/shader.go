@@ -1,7 +1,7 @@
 package vkutil
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 
 	"code.witches.io/go/vulkan"
@@ -21,7 +21,11 @@ func NewShader(device vulkan.Device, path string, flag vulkan.ShaderStageFlagBit
 	}
 	defer f.Close()
 
-	code, err := ioutil.ReadAll(f)
+	return NewShaderFromReader(device, f, flag)
+}
+
+func NewShaderFromReader(device vulkan.Device, r io.Reader, flag vulkan.ShaderStageFlagBits) (*Shader, error) {
+	code, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
