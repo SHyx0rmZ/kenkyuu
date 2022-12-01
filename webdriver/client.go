@@ -94,8 +94,9 @@ func (c *Client) Session(ctx context.Context) (s *session, err error) {
 			return err
 		}
 		s = &session{
-			ID:     body.Value.SessionID,
-			client: c,
+			ID:           body.Value.SessionID,
+			Capabilities: body.Value.Capabilities,
+			client:       c,
 		}
 		return nil
 	})

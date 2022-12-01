@@ -45,6 +45,7 @@ type FirefoxSession interface {
 
 type session struct {
 	ID string
+	Capabilities map[string]any
 
 	client *Client
 }
