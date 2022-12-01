@@ -16,6 +16,20 @@ type Client struct {
 	Client   *http.Client
 }
 
+func ReconstructSession(endpoint, sessionID string, client *http.Client) Session {
+	if client == nil {
+		client = http.DefaultClient
+	}
+	return &session{
+		ID: sessionID,
+
+		client: &Client{
+			Endpoint: endpoint,
+			Client:   client,
+		},
+	}
+}
+
 func (c *Client) do(req *http.Request, err error) func(f func(io.Reader) error) error {
 	return func(f func(io.Reader) error) error {
 		if err != nil {
