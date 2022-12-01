@@ -82,7 +82,7 @@ func (c *Client) Status(ctx context.Context) error {
 }
 
 func (c *Client) Session(ctx context.Context) (s *session, err error) {
-	err = c.do(http.NewRequestWithContext(ctx, http.MethodPost, c.url()+"/session", bytes.NewReader([]byte(`{"capabilities":{"firstMatch":[{"browserName":"firefox"},{"browserName":"chrome"}]}}`))))(func(r io.Reader) error {
+	err = c.do(http.NewRequestWithContext(ctx, http.MethodPost, c.url()+"/session", bytes.NewReader([]byte(`{"capabilities":{"firstMatch":[{"browserName":"firefox","moz:firefoxOptions":{"prefs":{"network.http.windows-sso.enabled":true}}},{"browserName":"firefox"},{"browserName":"chrome"}]}}`))))(func(r io.Reader) error {
 		var body struct {
 			Value struct {
 				SessionID    string
