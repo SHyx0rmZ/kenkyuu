@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type Client struct {
@@ -44,7 +45,11 @@ func (c *Client) do(req *http.Request, err error) func(f func(io.Reader) error) 
 			if err != nil {
 				return err
 			}
-			return fmt.Errorf("webdriver: %s: %s", e.Value.Error, e.Value.Message)
+			return &Error{
+				ErrorCode:  ErrorCode(e.Value.Error),
+				Message:    e.Value.Message,
+				StackTrace: strings.Split(e.Value.StackTrace, "\n"),
+			}
 		}
 		if f == nil {
 			return nil
