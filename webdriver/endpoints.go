@@ -59,7 +59,7 @@ var endpoints = [...]struct {
 	{"POST", "/session/{session id}/alert/accept", "Accept Alert", (*session).AcceptAlert},
 	{"GET", "/session/{session id}/alert/text", "Get Alert Text", nil},
 	{"POST", "/session/{session id}/alert/text", "Send Alert Text", nil},
-	{"GET", "/session/{session id}/screenshot", "Take Screenshot", nil},
+	{"GET", "/session/{session id}/screenshot", "Take Screenshot", (*session).Screenshot},
 	{"GET", "/session/{session id}/element/{element id}/screenshot", "Take Element Screenshot", nil},
 
 	{"POST", "/session/{session id}/moveto", "Move To", (*element).MoveTo},

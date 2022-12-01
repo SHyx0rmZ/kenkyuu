@@ -30,6 +30,7 @@ type Session interface {
 	MaximizeWindow(ctx context.Context) error
 	MinimizeWindow(ctx context.Context) error
 	FindElement(ctx context.Context, strategy LocationStrategy, selector string) (element Element, err error)
+	FindElements(ctx context.Context, strategy LocationStrategy, selector string) (elements []Element, err error)
 	Screenshot(ctx context.Context) (image image.Image, err error)
 	Actions(ctx context.Context, actions io.Reader) error
 	AcceptAlert(ctx context.Context) error
