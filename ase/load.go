@@ -1,9 +1,10 @@
 package ase
 
 import (
-	"github.com/veandco/go-sdl2/sdl"
 	"io"
 	"unsafe"
+
+	"code.witches.io/go/sdl2"
 )
 
 func LoadASE(r io.Reader) (*sdl.Surface, error) {
@@ -21,18 +22,16 @@ func LoadASE(r io.Reader) (*sdl.Surface, error) {
 		state.frames = append(state.frames, frame)
 	}
 
-	var maskRed, maskGreen, maskBlue, maskAlpha uint32
-
-	_, maskRed, maskGreen, maskBlue, maskAlpha, err = sdl.PixelFormatEnumToMasks(sdl.PIXELFORMAT_ABGR8888)
+	surface, err := sdl.CreateRGBSurfaceWithFormat(0, int(state.Header.width), int(state.Header.height), int(state.Header.colorDepth), sdl.PixelFormatABGR8888)
 	if err != nil {
 		return nil, err
 	}
+	format := surface.Format()
 
-	surface, err := sdl.CreateRGBSurface(0, int32(state.Header.width), int32(state.Header.height), int32(state.Header.colorDepth), maskRed, maskGreen, maskBlue, maskAlpha)
+	err = surface.FillRect(nil, sdl.MapRGBA(&format, 255, 0, 0, 255))
 	if err != nil {
 		return nil, err
 	}
-	surface.FillRect(nil, sdl.Color{255, 0, 0, 255}.Uint32())
 
 	for _, chunk := range state.frames[0].chunks {
 		if chunk.chunkType == ChunkTypeCel {
@@ -44,14 +43,14 @@ func LoadASE(r io.Reader) (*sdl.Surface, error) {
 				for y := uint(0); y < cel.height; y++ {
 					src := cel.pixels
 					dst := surface.Pixels()
-					copy(dst[uint(surface.Pitch)*(y+uint(cel.positionY))+uint(cel.positionX)*uint(surface.BytesPerPixel()):], src[cel.width*y*state.Header.colorDepth/8:cel.width*(y+1)*state.Header.colorDepth/8])
+					copy(dst[uint(surface.Pitch())*(y+uint(cel.positionY))+uint(cel.positionX)*uint(format.BytesPerPixel()):], src[cel.width*y*state.Header.colorDepth/8:cel.width*(y+1)*state.Header.colorDepth/8])
 				}
 			case CelTypeCompressed:
 				cel := (*CelCompressed)(unsafe.Pointer(celBase))
 				for y := uint(0); y < cel.height; y++ {
 					src := cel.pixels
 					dst := surface.Pixels()
-					copy(dst[uint(surface.Pitch)*(y+uint(cel.positionY))+uint(cel.positionX)*uint(surface.BytesPerPixel()):], src[cel.width*y*state.Header.colorDepth/8:cel.width*(y+1)*state.Header.colorDepth/8])
+					copy(dst[uint(surface.Pitch())*(y+uint(cel.positionY))+uint(cel.positionX)*uint(format.BytesPerPixel()):], src[cel.width*y*state.Header.colorDepth/8:cel.width*(y+1)*state.Header.colorDepth/8])
 				}
 			}
 		}
