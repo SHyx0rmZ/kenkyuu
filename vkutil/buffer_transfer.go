@@ -87,7 +87,7 @@ func NewTransferBuffer(device vulkan.Device, allocatorFrom, allocatorTo MemoryAl
 		return nil, err
 	}
 
-	address, err := b.MemoryHost.Map(0, vulkan.WholeSize, 0)
+	address, err := b.MemoryHost.Map(0, vulkan.DeviceSize(size), 0)
 
 	vulkan.Memcpy(unsafe.Pointer(address), unsafe.Pointer(pointer), size)
 

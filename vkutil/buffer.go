@@ -75,7 +75,7 @@ func NewBuffer(device vulkan.Device, allocator MemoryAllocator, usage vulkan.Buf
 		return nil, err
 	}
 
-	address, err := b.Memory.Map(0, vulkan.WholeSize, 0)
+	address, err := b.Memory.Map(0, vulkan.DeviceSize(size), 0)
 
 	vulkan.Memcpy(unsafe.Pointer(address), unsafe.Pointer(pointer), size)
 

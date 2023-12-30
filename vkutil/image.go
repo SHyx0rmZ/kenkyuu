@@ -1,8 +1,6 @@
 package vkutil
 
 import (
-	sdl "code.witches.io/go/sdl2"
-	"code.witches.io/go/vulkan"
 	"fmt"
 	"image"
 	"image/color"
@@ -11,6 +9,9 @@ import (
 	"os"
 	"path/filepath"
 	"unsafe"
+
+	sdl "code.witches.io/go/sdl2"
+	"code.witches.io/go/vulkan"
 )
 
 type Image struct {
