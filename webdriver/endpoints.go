@@ -45,7 +45,7 @@ var endpoints = [...]struct {
 	{"POST", "/session/{session id}/element/{element id}/click", "Element Click", (*element).Click},
 	{"POST", "/session/{session id}/element/{element id}/clear", "Element Clear", nil},
 	{"POST", "/session/{session id}/element/{element id}/value", "Element Send Keys", (*element).SendKeys},
-	{"GET", "/session/{session id}/source", "Get Page Source", nil},
+	{"GET", "/session/{session id}/source", "Get Page Source", (*session).Source},
 	{"POST", "/session/{session id}/execute/sync", "Execute Script", nil},
 	{"POST", "/session/{session id}/execute/async", "Execute Async Script", nil},
 	{"GET", "/session/{session id}/cookie", "Get All Cookies", nil},

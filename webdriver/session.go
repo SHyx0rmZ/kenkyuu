@@ -32,6 +32,7 @@ type Session interface {
 	FindElement(ctx context.Context, strategy LocationStrategy, selector string) (element Element, err error)
 	FindElements(ctx context.Context, strategy LocationStrategy, selector string) (elements []Element, err error)
 	Screenshot(ctx context.Context) (image image.Image, err error)
+	Source(ctx context.Context) (source string, err error)
 	Actions(ctx context.Context, actions io.Reader) error
 	AcceptAlert(ctx context.Context) error
 }
@@ -45,7 +46,7 @@ type FirefoxSession interface {
 }
 
 type session struct {
-	ID string
+	ID           string
 	Capabilities map[string]any
 
 	client *Client
@@ -361,6 +362,21 @@ func (s *session) Screenshot(ctx context.Context) (img image.Image, err error) {
 		return nil
 	})
 	return img, err
+}
+
+func (s *session) Source(ctx context.Context) (source string, err error) {
+	err = s.client.do(http.NewRequestWithContext(ctx, http.MethodGet, s.url()+"/source", nil))(func(r io.Reader) error {
+		var body struct {
+			Value string `json:"value"`
+		}
+		err := json.NewDecoder(r).Decode(&body)
+		if err != nil {
+			return err
+		}
+		source = body.Value
+		return nil
+	})
+	return source, nil
 }
 
 func (s *session) Actions(ctx context.Context, actions io.Reader) error {
