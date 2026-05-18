@@ -58,3 +58,13 @@ func (s Shader) Stage() vulkan.PipelineShaderStageCreateInfo {
 		SpecializationInfo: vulkan.SpecializationInfo{},
 	}
 }
+
+func (s Shader) SpecializedStage(info vulkan.SpecializationInfo) vulkan.PipelineShaderStageCreateInfo {
+	return vulkan.PipelineShaderStageCreateInfo{
+		Type:               vulkan.StructureTypePipelineShaderStageCreateInfo,
+		Stage:              s.Flag,
+		Module:             s.Handle,
+		Name:               "main",
+		SpecializationInfo: info,
+	}
+}
