@@ -25,7 +25,7 @@ func Info(instance vulkan.Instance) error {
 			return es[i].ExtensionName.String() < es[j].ExtensionName.String()
 		})
 		for _, e := range es {
-			fmt.Println("extension:", e)
+			fmt.Println("instance extension:", e)
 		}
 	}
 
@@ -34,12 +34,12 @@ func Info(instance vulkan.Instance) error {
 		return err
 	}
 
-	for _, pg := range pgs {
+	for pgi, pg := range pgs {
 		if pg.Type != vulkan.StructureTypePhysicalDeviceGroupProperties {
 			continue
 		}
 
-		for _, p := range pg.PhysicalDevices {
+		for pi, p := range pg.PhysicalDevices {
 			pp := vulkan.GetPhysicalDeviceProperties2(p)
 			fmt.Println(pp)
 
@@ -55,7 +55,7 @@ func Info(instance vulkan.Instance) error {
 					fmt.Println(l)
 					e, err := vulkan.EnumerateDeviceExtensionProperties(p, l.LayerName.String())
 					if err == nil {
-						fmt.Println(e)
+						fmt.Println("huh?", e)
 					}
 				}
 			}
@@ -66,7 +66,7 @@ func Info(instance vulkan.Instance) error {
 					return es[i].ExtensionName.String() < es[j].ExtensionName.String()
 				})
 				for _, e := range es {
-					fmt.Println("extension:", e)
+					fmt.Println(pgi, pi, "device extension:", e)
 				}
 			}
 
