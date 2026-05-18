@@ -15,10 +15,10 @@ type Memory struct {
 	size   vulkan.DeviceSize
 }
 
-func (m *Memory) Map(offset, size vulkan.DeviceSize, flags vulkan.MemoryMapFlags) (uintptr, error) {
+func (m *Memory) Map(offset, size vulkan.DeviceSize, flags vulkan.MemoryMapFlags) (unsafe.Pointer, error) {
 	addr, err := vulkan.MapMemory(m.Device, m.Memory, offset, size, flags)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	if (m.Type.PropertyFlags & vulkan.MemoryPropertyHostCoherentBit) != vulkan.MemoryPropertyHostCoherentBit {

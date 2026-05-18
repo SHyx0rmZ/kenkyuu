@@ -27,15 +27,15 @@ type TransferBuffer struct {
 func NewTransferBuffer(device vulkan.Device, allocatorFrom, allocatorTo MemoryAllocator, fromFamily, toFamily uint32, usage vulkan.BufferUsageFlags, data any) (*TransferBuffer, error) {
 	rv := reflect.Indirect(reflect.ValueOf(data))
 	var size uintptr
-	var pointer uintptr
+	var pointer unsafe.Pointer
 
 	switch rv.Kind() {
 	case reflect.Slice:
 		size = rv.Type().Elem().Size() * uintptr(rv.Len())
-		pointer = rv.Pointer()
+		pointer = unsafe.Pointer(rv.Pointer())
 	case reflect.Struct:
 		size = rv.Type().Size()
-		pointer = rv.UnsafeAddr()
+		pointer = unsafe.Pointer(rv.UnsafeAddr())
 	default:
 		return nil, fmt.Errorf("expected slice")
 	}
@@ -89,7 +89,7 @@ func NewTransferBuffer(device vulkan.Device, allocatorFrom, allocatorTo MemoryAl
 
 	address, err := b.MemoryHost.Map(0, vulkan.DeviceSize(size), 0)
 
-	vulkan.Memcpy(unsafe.Pointer(address), unsafe.Pointer(pointer), size)
+	vulkan.Memcpy(address, pointer, size)
 
 	err = b.MemoryHost.Unmap()
 	if err != nil {

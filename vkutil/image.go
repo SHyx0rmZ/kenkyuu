@@ -150,21 +150,21 @@ func LoadImage(device vulkan.Device, allocator MemoryAllocator, j image.Image, t
 
 	fmt.Println(unsafe.Pointer(addr), j.Bounds().Dx(), j.Bounds().Canon().Dx(), j.Bounds().Canon().Min, j.Bounds().Canon().Max, unsafe.Sizeof(uint16(0)))
 
-	src := func(data uintptr, i image.Image, width int) {
+	src := func(data unsafe.Pointer, i image.Image, width int) {
 		const bytes = 4
 		canon := i.Bounds().Canon()
 		stride := width * bytes
 		for y := canon.Min.Y; y < canon.Max.Y; y++ {
 			for x := canon.Min.X; x < canon.Max.X; x++ {
 				r, g, b, a := i.At(x, y).RGBA()
-				*(*uint8)(unsafe.Pointer(addr + uintptr(y*stride+x*bytes+0))) = uint8(r)
-				*(*uint8)(unsafe.Pointer(addr + uintptr(y*stride+x*bytes+1))) = uint8(g)
-				*(*uint8)(unsafe.Pointer(addr + uintptr(y*stride+x*bytes+2))) = uint8(b)
-				*(*uint8)(unsafe.Pointer(addr + uintptr(y*stride+x*bytes+3))) = uint8(a)
+				*(*uint8)(unsafe.Add(addr, y*stride+x*bytes+0)) = uint8(r)
+				*(*uint8)(unsafe.Add(addr, y*stride+x*bytes+1)) = uint8(g)
+				*(*uint8)(unsafe.Add(addr, y*stride+x*bytes+2)) = uint8(b)
+				*(*uint8)(unsafe.Add(addr, y*stride+x*bytes+3)) = uint8(a)
 			}
 		}
 	}
-	over := func(data uintptr, i image.Image, width int) {
+	over := func(data unsafe.Pointer, i image.Image, width int) {
 		const bytes = 4
 		const m = (1 << 8) - 1
 		canon := i.Bounds().Canon()
@@ -172,10 +172,10 @@ func LoadImage(device vulkan.Device, allocator MemoryAllocator, j image.Image, t
 		for y := canon.Min.Y; y < canon.Max.Y; y++ {
 			for x := canon.Min.X; x < canon.Max.X; x++ {
 				r, g, b, a := i.At(x, y).RGBA()
-				rp := (*uint8)(unsafe.Pointer(addr + uintptr(y*stride+x*bytes+0)))
-				gp := (*uint8)(unsafe.Pointer(addr + uintptr(y*stride+x*bytes+1)))
-				bp := (*uint8)(unsafe.Pointer(addr + uintptr(y*stride+x*bytes+2)))
-				ap := (*uint8)(unsafe.Pointer(addr + uintptr(y*stride+x*bytes+3)))
+				rp := (*uint8)(unsafe.Add(addr, y*stride+x*bytes+0))
+				gp := (*uint8)(unsafe.Add(addr, y*stride+x*bytes+1))
+				bp := (*uint8)(unsafe.Add(addr, y*stride+x*bytes+2))
+				ap := (*uint8)(unsafe.Add(addr, y*stride+x*bytes+3))
 				*rp = uint8(uint32(*rp)*(m-a)/m + r)
 				*gp = uint8(uint32(*gp)*(m-a)/m + g)
 				*bp = uint8(uint32(*bp)*(m-a)/m + b)
